@@ -1,0 +1,6 @@
+.gradle/
+.idea/
+build/
+app/build/
+posenet/build/
+posenet/src/main/assets/*
