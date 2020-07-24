@@ -1,28 +1,30 @@
 package org.tensorflow.lite.examples.posenet.lib;
 
-import android.os.SystemClock;
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
-import org.tensorflow.lite.examples.posenet.lib.Person;
-import org.tensorflow.lite.examples.posenet.lib.BodyPart;
-import org.tensorflow.lite.examples.posenet.lib.KeyPoint;
-import org.tensorflow.lite.examples.posenet.lib.Position;
 
 
 public class MultiPoseDecode {
 
     private float threshold = 0.7f;
+    //0.0 to 1.0. Defaults to 0.5. At a high level, this controls
+    // the minimum confidence score of poses that are returned.
     private int inputSize = 257; //model's input size; hard code
     private int nmsRadius = 10;
+    //A number in pixels. At a high level, this controls the minimum distance between poses
+    // that are returned. This value defaults to 20, which is probably fine for most cases.
+    // It should be increased/decreased as a way to filter out less accurate poses
+    // but only if tweaking the pose confidence score is not good enough.
     private int localMaximumRadius = 1;
+
     private int numResults = 2;
-    private int outputStride = 16;   //should confirm its value
+    private int outputStride = 32;
+    //resolution = ((InputImageSize - 1) / OutputStride) + 1
+    // for tensorflow's multi person estimation:  32 in default; input 257, output 9;
 /**
  * examples:
  * var result = await runPoseNetOnImage(
@@ -93,6 +95,7 @@ public class MultiPoseDecode {
             Map<String, Object> root = pq.poll();
             float[] rootPoint = getImageCoords(root, outputStride, numParts, offsets);
 
+            //check whether have a nearby same carpart already detected;
             if (withinNmsRadiusOfCorrespondingPoint(
                     results, sqaredNmsRadius, rootPoint[0], rootPoint[1], (int) root.get("partId")))
                 continue;
@@ -102,16 +105,18 @@ public class MultiPoseDecode {
             keypoint.put("part", partNames[(int) root.get("partId")]);
             keypoint.put("y", rootPoint[0] / inputSize);
             keypoint.put("x", rootPoint[1] / inputSize);
-            //why divide by inputsize?
+            //likely:  to normalize the  coordinates with image size
 
             Map<Integer, Map<String, Object>> keypoints = new HashMap<>();
             keypoints.put((int) root.get("partId"), keypoint);
-            //arrange the key-points according to parts
+            //random choose a keypoint as root keypoint,
+            // then search forward and backward for other parts;
 
             for (int edge = numEdges - 1; edge >= 0; --edge) {
                 int sourceKeypointId = parentToChildEdges.get(edge);
                 int targetKeypointId = childToParentEdges.get(edge);
                 // source --- son node;  target: farther node;  strange definition
+                // from son node to traverse to find father node, we use displacementBwd
                 if (keypoints.containsKey(sourceKeypointId) && !keypoints.containsKey(targetKeypointId)) {
                     keypoint = traverseToTargetKeypoint(edge, keypoints.get(sourceKeypointId),
                             targetKeypointId, scores, offsets, outputStride, displacementsBwd);
@@ -119,6 +124,7 @@ public class MultiPoseDecode {
                 }
             }
 
+            //forward traverse; from father to find son
             for (int edge = 0; edge < numEdges; ++edge) {
                 int sourceKeypointId = childToParentEdges.get(edge);
                 int targetKeypointId = parentToChildEdges.get(edge);
@@ -225,12 +231,11 @@ public class MultiPoseDecode {
                                                 float y,
                                                 float x,
                                                 int keypointId) {
+        //check whether has a same part with in squaredNmsRadius
+        //Assumption: the same part will not be nearly with each
         for (Map<String, Object> pose : poses) {
             Map<Integer, Object> keypoints = (Map<Integer, Object>) pose.get("keypoints");
             Map<String, Object> correspondingKeypoint = (Map<String, Object>) keypoints.get(keypointId);
-//            if (correspondingKeypoint==null || !correspondingKeypoint.containsKey("x")){
-//                return false;
-//            }
             float _x = (float) correspondingKeypoint.get("x") * inputSize - x;
             float _y = (float) correspondingKeypoint.get("y") * inputSize - y;
             float squaredDistance = _x * _x + _y * _y;
@@ -241,6 +246,7 @@ public class MultiPoseDecode {
         return false;
     }
 
+    //TODO  algorithm
     Map<String, Object> traverseToTargetKeypoint(int edgeId,
                                                  Map<String, Object> sourceKeypoint,
                                                  int targetKeypointId,
@@ -267,6 +273,7 @@ public class MultiPoseDecode {
         float[] targetKeypoint = displacedPoint;
 
         final int offsetRefineStep = 2;
+        //very interesting step; need to refer the paper for details;
         for (int i = 0; i < offsetRefineStep; i++) {
             int[] targetKeypointIndices = getStridedIndexNearPoint(targetKeypoint[0], targetKeypoint[1],
                     outputStride, height, width);
