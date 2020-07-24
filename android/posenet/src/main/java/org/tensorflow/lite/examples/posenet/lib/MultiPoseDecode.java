@@ -22,7 +22,7 @@ public class MultiPoseDecode {
     private int nmsRadius = 10;
     private int localMaximumRadius = 1;
     private int numResults = 2;
-    private int outputStride = 16;
+    private int outputStride = 16;   //should confirm its value
 /**
  * examples:
  * var result = await runPoseNetOnImage(

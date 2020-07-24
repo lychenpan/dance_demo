@@ -27,8 +27,6 @@ import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import kotlin.math.exp
-import org.tensorflow.lite.examples.posenet.lib.MultiPoseTest
-import kotlin.math.absoluteValue
 
 
 enum class BodyPart {
@@ -374,47 +372,6 @@ class Posenet(
     return res;
   }
 
-  //TODO:  implementation the multipose decode;  maybe a java static function ?
-  /**
-   * Estimates the pose for multi person.
-   * args:
-   *      bitmap: image bitmap of frame that should be processed
-   * returns:
-   *      person: a Person object containing data about keypoint locations and confidence scores
-//   */
-//  @Suppress("UNCHECKED_CAST")
-//  fun estimateMultiPose(bitmap: Bitmap): Array<Person?> {
-//    val estimationStartTimeNanos = SystemClock.elapsedRealtimeNanos()
-//    val inputArray = arrayOf(initInputArray(bitmap))
-//    Log.i(
-//      "posenet",
-//      String.format(
-//        "Scaling to [-1,1] took %.2f ms",
-//        1.0f * (SystemClock.elapsedRealtimeNanos() - estimationStartTimeNanos) / 1_000_000
-//      )
-//    )
-//
-//    val outputMap = initOutputMap(getInterpreter())
-//
-//    val inferenceStartTimeNanos = SystemClock.elapsedRealtimeNanos()
-//    getInterpreter().runForMultipleInputsOutputs(inputArray, outputMap)
-//    lastInferenceTimeNanos = SystemClock.elapsedRealtimeNanos() - inferenceStartTimeNanos
-//    Log.i(
-//      "posenet",
-//      String.format("Interpreter took %.2f ms", 1.0f * lastInferenceTimeNanos / 1_000_000)
-//    )
-//
-//    //test 2 person decode
-//    val res = arrayOfNulls<Person>(2)
-//
-//
-////    person.keyPoints = keypointList.toList()
-////    person.score = totalScore / numKeypoints
-////
-////    TODO: change ps to Persons
-//    //check call parameters;
-//    return res;
-//  }
 
 
 }

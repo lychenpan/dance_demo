@@ -13,7 +13,7 @@ class MultiPoseTest {
     private val nmsRadius = 10
     private val localMaximumRadius = 1
     private val numResults = 2
-    private val outputStride = 16
+    private val outputStride = 16  //TODO: confirm
 
     /**
      * examples:
