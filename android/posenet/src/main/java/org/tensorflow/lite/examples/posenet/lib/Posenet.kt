@@ -325,20 +325,9 @@ class Posenet(
     )
 
     //test 2 person decode
+    val decodeStartTime = SystemClock.elapsedRealtimeNanos()
     val res = arrayOfNulls<Person>(2)
     val results = multiPoseDecode?.decodeOutputMap(outputMap)
-    //about the format of outputmap:
-    // List<Map<String, Object>> results = new ArrayList<>();
-    //Map<String, Object> result = new HashMap<>();
-    //result.put("keypoints", keypoints);
-    //result.put("score", getInstanceScore(keypoints, numParts));
-    //Map<Integer, Map<String, Object>> keypoints = new HashMap<>();
-    //Map<String, Object> keypoint = new HashMap<>();
-    //keypoint.put("score", root.get("score"));
-    //keypoint.put("part", partNames[(int) root.get("partId")]);
-    //keypoint.put("y", rootPoint[0] / inputSize);
-    //keypoint.put("x", rootPoint[1] / inputSize);
-
 
     if (results != null) {
       for(idx in 0 until results.size){
@@ -369,7 +358,15 @@ class Posenet(
         res.set(idx, person)
       }
     }
+
+    val decodeTime = SystemClock.elapsedRealtimeNanos() - decodeStartTime
+    Log.i(
+      "posenet",
+      String.format("multi person decode took %.2f ms", 1.0f * decodeTime / 1_000_000)
+    )
+    lastInferenceTimeNanos = SystemClock.elapsedRealtimeNanos() - inferenceStartTimeNanos
     return res;
+
   }
 
 

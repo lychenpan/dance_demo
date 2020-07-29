@@ -468,7 +468,7 @@ class PosenetActivity :
     val scaledBitmap = Bitmap.createScaledBitmap(croppedBitmap, MODEL_WIDTH, MODEL_HEIGHT, true)
 
     // Perform inference.
-//    val person = posenet.estimateSinglePose(scaledBitmap)
+    //  val person = posenet.estimateSinglePose(scaledBitmap)
     val persons = posenet.estimateMultiPose_1(scaledBitmap)
     val canvas: Canvas = surfaceHolder!!.lockCanvas()
     drawMutiPerson(canvas, persons, scaledBitmap)
