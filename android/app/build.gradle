@@ -4,6 +4,9 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'kotlin-kapt'
+
+
 android {
   compileSdkVersion 29
   buildToolsVersion "29.0.0"
@@ -32,6 +35,8 @@ android {
   }
 }
 
+
+
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation project(":posenet")
@@ -42,4 +47,11 @@ dependencies {
   testImplementation 'junit:junit:4.12'
   androidTestImplementation 'androidx.test:runner:1.2.0'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+  ///
+  def roomVersion = "2.2.5"
+  implementation "androidx.room:room-runtime:$roomVersion"
+  implementation "androidx.room:room-ktx:$roomVersion"
+  kapt "androidx.room:room-compiler:$roomVersion"
+
 }

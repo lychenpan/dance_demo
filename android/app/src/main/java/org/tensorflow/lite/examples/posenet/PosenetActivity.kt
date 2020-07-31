@@ -40,10 +40,7 @@ import android.hardware.camera2.TotalCaptureResult
 import android.media.Image
 import android.media.ImageReader
 import android.media.ImageReader.OnImageAvailableListener
-import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.Process
+import android.os.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import android.util.Log
@@ -67,6 +64,8 @@ import org.tensorflow.lite.examples.posenet.lib.Posenet
 class PosenetActivity :
   Fragment(),
   ActivityCompat.OnRequestPermissionsResultCallback {
+
+  private var img_available_time = 0L
 
   /** List of body joints that should be connected.    */
   private val bodyJoints = listOf(
@@ -414,6 +413,9 @@ class PosenetActivity :
         return
       }
 
+      img_available_time = SystemClock.elapsedRealtimeNanos()
+
+
       val image = imageReader.acquireLatestImage() ?: return
       fillBytes(image.planes, yuvBytes)
 
@@ -470,6 +472,8 @@ class PosenetActivity :
     // Perform inference.
     //  val person = posenet.estimateSinglePose(scaledBitmap)
     val persons = posenet.estimateMultiPose_1(scaledBitmap)
+    // TODO()
+    //save the time and persons information;
     val canvas: Canvas = surfaceHolder!!.lockCanvas()
     drawMutiPerson(canvas, persons, scaledBitmap)
   }
