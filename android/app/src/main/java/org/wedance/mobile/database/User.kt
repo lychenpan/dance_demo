@@ -5,6 +5,9 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+//TODO how to store the time-seriels data in database is a problem
+//currently skip it in mobile
+// but it is a problem still in backend
 @Entity
 data class User(
     @PrimaryKey val uid: Int,
